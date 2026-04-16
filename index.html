@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KB — Enter</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Exo+2:ital,wght@0,300;0,400;0,700;0,900;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --hot:#ff0080;--neon:#00ffcc;--candy:#ffdd00;--grape:#ff80c0;
+  --ice:#00cfff;--lime:#80ff00;--orange:#ff7700;
+  --bg:#080010;--bg2:#0d0018;--bg3:#120020;
+  --txt:#ffe8ff;--dim:#9060a0;--dim2:#2a1040;
+}
+html,body{width:100%;min-height:100vh;overflow-x:hidden;}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,255,204,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,.018) 1px,transparent 1px),linear-gradient(rgba(255,0,128,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,128,.012) 1px,transparent 1px);
+  background-size:30px 30px,30px 30px,90px 90px,90px 90px;}
+body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);}
+
+#candy-overlay{position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden;}
+.candy-drop{position:absolute;top:-60px;opacity:0;animation:candyfall linear forwards;filter:drop-shadow(0 0 4px rgba(255,0,128,.6));}
+@keyframes candyfall{0%{opacity:0;transform:translateY(0) rotate(0deg);}6%{opacity:1;}94%{opacity:.8;}100%{opacity:0;transform:translateY(108vh) rotate(var(--rot));}}
+
+/* GATE */
+#gate{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);transition:opacity .7s,transform .7s;}
+#gate.unlocking{opacity:0;transform:scale(1.04);pointer-events:none;}
+.gate-rings{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.gring{position:absolute;border-radius:50%;border:1px solid;animation:ringP 4s ease-in-out infinite;}
+@keyframes ringP{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.15;}50%{transform:translate(-50%,-50%) scale(1.04);opacity:.3;}}
+.gate-logo{font-family:'Black Ops One',cursive;font-size:clamp(80px,18vw,160px);letter-spacing:.08em;line-height:1;margin-bottom:8px;position:relative;z-index:1;
+  background:linear-gradient(135deg,#ff0000 0%,#cc0033 35%,#0044ff 65%,#0088ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoS 3s ease-in-out infinite;}
+@keyframes logoS{0%,100%{filter:drop-shadow(0 0 20px rgba(255,0,0,.6)) drop-shadow(0 0 40px rgba(0,68,255,.3));}50%{filter:drop-shadow(0 0 30px rgba(0,68,255,.6)) drop-shadow(0 0 60px rgba(255,0,0,.3));}}
+.gate-sub{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin-bottom:48px;position:relative;z-index:1;}
+.gate-form{display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;z-index:1;}
+.gate-input-wrap{position:relative;border:1px solid rgba(255,0,128,.4);background:rgba(255,0,128,.04);padding:2px;}
+.gate-input-wrap::before{content:'';position:absolute;top:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--hot),var(--candy),var(--neon),transparent);}
+.gate-input{background:transparent;border:none;outline:none;font-family:'Share Tech Mono',monospace;font-size:18px;letter-spacing:.3em;text-transform:uppercase;color:var(--candy);padding:14px 28px;text-align:center;width:240px;caret-color:var(--hot);}
+.gate-input::placeholder{color:var(--dim);letter-spacing:.15em;}
+.gate-btn{font-family:'Black Ops One',cursive;font-size:13px;letter-spacing:.2em;text-transform:uppercase;background:linear-gradient(90deg,var(--hot),var(--grape));color:#fff;border:none;padding:13px 40px;cursor:pointer;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:opacity .2s,transform .1s;width:240px;}
+.gate-btn:hover{opacity:.85;transform:translateY(-1px);}
+.gate-error{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--hot);opacity:0;transition:opacity .3s;text-transform:uppercase;}
+.gate-error.show{opacity:1;}
+
+/* MENU */
+#menu{display:none;position:relative;z-index:2;}
+#menu.visible{display:block;}
+
+/* HERO */
+.hero-strip{position:relative;overflow:hidden;padding:0 40px;border-bottom:1px solid rgba(255,0,128,.2);display:flex;align-items:stretch;min-height:180px;}
+.hero-left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 40px 32px 0;border-right:1px solid rgba(255,0,128,.15);}
+.hero-logo{font-family:'Black Ops One',cursive;font-size:clamp(56px,10vw,110px);line-height:.9;letter-spacing:.06em;background:linear-gradient(135deg,var(--hot) 0%,var(--candy) 50%,var(--neon) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;min-height:1em;}
+.hero-cursor{display:inline-block;width:4px;height:.85em;background:var(--hot);margin-left:6px;vertical-align:baseline;animation:blink .6s steps(1) infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.hero-tagline{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;margin-top:10px;}
+.hero-right{display:flex;align-items:center;padding:0 0 0 40px;gap:32px;}
+.hero-stat{text-align:center;}
+.hero-stat-val{font-family:'Black Ops One',cursive;font-size:28px;line-height:1;margin-bottom:4px;}
+.hero-stat-val.pink{color:var(--hot);}
+.hero-stat-val.neon{color:var(--neon);}
+.hero-stat-val.candy{color:var(--candy);}
+.hero-stat-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--dim);text-transform:uppercase;}
+.live-pill{display:inline-flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;background:rgba(255,0,128,.08);border:1px solid rgba(255,0,128,.3);color:var(--hot);padding:6px 14px;margin-bottom:16px;align-self:flex-start;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--hot);animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.7);}}
+.hero-stripe{position:absolute;top:0;right:0;width:200px;height:100%;opacity:.04;background:repeating-linear-gradient(-45deg,var(--hot),var(--hot) 2px,transparent 2px,transparent 14px);pointer-events:none;}
+
+/* TICKER */
+.ticker-wrap{background:var(--hot);overflow:hidden;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+.ticker-track{display:flex;gap:0;animation:tickerRoll 28s linear infinite;white-space:nowrap;}
+@keyframes tickerRoll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.ticker-item{font-family:'Black Ops One',cursive;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#000;padding:0 28px;flex-shrink:0;}
+.ticker-dot{color:rgba(0,0,0,.4);padding:0 4px;}
+
+/* PANELS */
+.panels{display:flex;flex-direction:column;gap:0;}
+.panel{border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden;}
+.panel-header{display:flex;align-items:center;padding:0 40px;cursor:pointer;transition:background .2s;user-select:none;min-height:68px;gap:20px;position:relative;}
+.panel-header:hover{background:rgba(255,255,255,.02);}
+.panel-num{font-family:'Black Ops One',cursive;font-size:11px;letter-spacing:.1em;color:var(--dim);width:28px;flex-shrink:0;}
+.panel-icon{font-size:22px;flex-shrink:0;filter:saturate(.8);}
+.panel-title{font-family:'Black Ops One',cursive;font-size:clamp(20px,4vw,32px);letter-spacing:.08em;text-transform:uppercase;flex:1;}
+.panel-title.flower{color:var(--lime);}
+.panel-title.preroll{color:var(--candy);}
+.panel-title.vapes{color:var(--ice);}
+.panel-title.conc{color:var(--grape);}
+.panel-title.edible{color:var(--hot);}
+.panel-arrow{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--dim);transition:transform .3s;}
+.panel.open .panel-arrow{transform:rotate(90deg);}
+.panel-accent{position:absolute;left:0;top:0;bottom:0;width:3px;opacity:0;transition:opacity .2s;}
+.panel-header:hover .panel-accent,.panel.open .panel-accent{opacity:1;}
+.panel-accent.lime{background:var(--lime);}
+.panel-accent.candy{background:var(--candy);}
+.panel-accent.ice{background:var(--ice);}
+.panel-accent.grape{background:var(--grape);}
+.panel-accent.hot{background:var(--hot);}
+.panel-body{display:none;padding:0 40px 36px;}
+.panel.open .panel-body{display:block;}
+
+/* FLOWER */
+.flower-strain-name{font-family:'Black Ops One',cursive;font-size:16px;font-weight:400;letter-spacing:.12em;color:#fff;text-transform:uppercase;margin-bottom:12px;padding:10px 0 10px;border-bottom:1px solid rgba(128,255,0,.2);}
+.flower-prices{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(128,255,0,.08);border:1px solid rgba(128,255,0,.15);}
+@media(max-width:600px){.flower-prices{grid-template-columns:repeat(2,1fr);}}
+.f-price-cell{background:var(--bg2);padding:20px 16px;text-align:center;transition:background .2s;cursor:default;}
+.f-price-cell:hover{background:#0f001e;}
+.f-weight{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--dim);text-transform:uppercase;margin-bottom:10px;}
+.f-amt{font-family:'Black Ops One',cursive;font-size:30px;color:var(--lime);line-height:1;}
+
+/* PRE-ROLLS */
+.preroll-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.preroll-card{background:var(--bg2);border:1px solid rgba(255,221,0,.15);padding:24px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));transition:border-color .2s,background .2s;}
+.preroll-card:hover{border-color:rgba(255,221,0,.4);background:#0f001e;}
+.pr-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--candy);text-transform:uppercase;margin-bottom:10px;}
+.pr-name{font-family:'Black Ops One',cursive;font-size:22px;letter-spacing:.06em;color:#fff;margin-bottom:8px;text-transform:uppercase;}
+.pr-detail{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);line-height:1.7;letter-spacing:.05em;margin-bottom:16px;}
+.pr-price{font-family:'Black Ops One',cursive;font-size:28px;color:var(--candy);}
+
+/* VAPES */
+.kb-vapes-header{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ice);margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.kb-vapes-header::before{content:'▶';font-size:8px;color:var(--hot);}
+.kb-vapes-header::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,207,255,.3),transparent);}
+.kb-flavor-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+.kb-flavor-chip{font-family:'Exo 2',sans-serif;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 20px;border:1px solid rgba(0,207,255,.25);background:rgba(0,207,255,.05);color:#fff;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:all .15s;cursor:default;}
+.kb-flavor-chip:hover{background:rgba(0,207,255,.12);border-color:rgba(0,207,255,.5);color:var(--ice);}
+.kb-flavor-price{font-family:'Black Ops One',cursive;font-size:11px;color:var(--candy);margin-left:8px;}
+.other-brands-header{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--hot);margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.other-brands-header::before{content:'▶';font-size:8px;color:var(--hot);}
+.other-brands-header::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,128,.3),transparent);}
+.brand-row-list{display:flex;flex-direction:column;gap:1px;border:1px solid rgba(255,255,255,.05);}
+.brand-row{display:flex;align-items:center;background:var(--bg2);padding:16px 24px;gap:12px;transition:background .2s;border-left:3px solid transparent;flex-wrap:nowrap;}
+.brand-row:hover{background:#0f001e;}
+.brand-row.muha:hover{border-left-color:var(--hot);}
+.brand-row.chief:hover{border-left-color:var(--ice);}
+.brand-row.mad:hover{border-left-color:var(--grape);}
+.brand-row.ace:hover{border-left-color:var(--lime);}
+.brand-row-name{font-family:'Black Ops One',cursive;font-size:16px;letter-spacing:.06em;flex:1;text-transform:uppercase;white-space:nowrap;min-width:0;}
+.brand-row-name.muha{color:var(--hot);}
+.brand-row-name.chief{color:var(--ice);}
+.brand-row-name.mad{color:var(--grape);}
+.brand-row-name.ace{color:var(--lime);}
+.brand-row-info{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.06em;white-space:nowrap;flex-shrink:0;}
+.brand-row-price{font-family:'Black Ops One',cursive;font-size:20px;color:var(--candy);white-space:nowrap;flex-shrink:0;}
+
+/* CONCENTRATES */
+.conc-tiles{display:flex;flex-wrap:wrap;gap:10px;}
+.conc-tile{background:var(--bg2);border:1px solid rgba(204,0,255,.2);padding:22px 28px;flex:1;min-width:180px;position:relative;overflow:hidden;transition:all .2s;}
+.conc-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--grape),var(--hot));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.conc-tile:hover{background:#0f001e;border-color:rgba(204,0,255,.4);}
+.conc-tile:hover::after{transform:scaleX(1);}
+.conc-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--grape);text-transform:uppercase;margin-bottom:8px;}
+.conc-name{font-family:'Black Ops One',cursive;font-size:18px;letter-spacing:.04em;color:#fff;text-transform:uppercase;margin-bottom:12px;}
+.conc-price{font-family:'Black Ops One',cursive;font-size:26px;color:var(--candy);}
+
+/* EDIBLES */
+.edible-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.edible-tile{background:var(--bg2);border:1px solid rgba(255,0,128,.15);padding:28px 24px;position:relative;overflow:hidden;transition:all .2s;}
+.edible-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--hot),var(--candy),var(--neon));}
+.edible-tile:hover{background:#0f001e;border-color:rgba(255,0,128,.4);}
+.edible-emoji{font-size:36px;margin-bottom:14px;display:block;}
+.edible-name{font-family:'Black Ops One',cursive;font-size:20px;letter-spacing:.05em;color:#fff;text-transform:uppercase;margin-bottom:8px;}
+.edible-detail{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);line-height:1.8;letter-spacing:.06em;margin-bottom:16px;}
+.edible-price{font-family:'Black Ops One',cursive;font-size:28px;color:var(--hot);}
+.edible-unit{font-size:14px;color:var(--dim);font-family:'Share Tech Mono',monospace;margin-left:4px;}
+
+/* FOOTER */
+.site-footer{padding:16px 40px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between;}
+
+@media(max-width:640px){
+  .hero-strip{flex-direction:column;padding:24px 20px;}
+  .hero-left{border-right:none;border-bottom:1px solid rgba(255,0,128,.15);padding-right:0;padding-bottom:24px;margin-bottom:24px;}
+  .hero-right{padding-left:0;flex-wrap:wrap;}
+  .panel-header,.panel-body,.site-footer{padding-left:20px;padding-right:20px;}
+}
+</style>
+</head>
+<body>
+
+<div id="candy-overlay"></div>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-rings">
+    <div class="gring" style="width:600px;height:600px;left:50%;top:50%;border-color:rgba(255,0,128,.12);animation-delay:0s;"></div>
+    <div class="gring" style="width:420px;height:420px;left:50%;top:50%;border-color:rgba(0,255,204,.1);animation-delay:1s;"></div>
+    <div class="gring" style="width:240px;height:240px;left:50%;top:50%;border-color:rgba(255,221,0,.1);animation-delay:2s;"></div>
+  </div>
+  <div class="gate-logo">KB</div>
+  <div class="gate-sub">Enter access code to continue</div>
+  <div class="gate-form">
+    <div class="gate-input-wrap">
+      <input class="gate-input" id="gate-input" type="password" placeholder="••••••" maxlength="20" autocomplete="off">
+    </div>
+    <button class="gate-btn" onclick="checkPass()">Enter →</button>
+    <div class="gate-error" id="gate-error">Invalid access code</div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="menu">
+  <div class="hero-strip">
+    <div class="hero-stripe"></div>
+    <div class="hero-left">
+      <div class="live-pill"><div class="live-dot"></div>Live Menu</div>
+      <div class="hero-logo" id="hero-logo"></div>
+      <div class="hero-tagline">Premium Products · <span id="last-updated" style="color:var(--neon);">—</span></div>
+    </div>
+  </div>
+
+  <div class="ticker-wrap">
+    <div class="ticker-track">
+      <span class="ticker-item">🌿 Blue Dream Smalls</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🍬 Gingerbread Cookies</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">💨 KB Vapes — 6 Flavors</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔥 Live Resin Pre-Rolls</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">💎 1g Batter — 3 Strains</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🍭 Gummies 200mg</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🌿 Blue Dream Smalls</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🍬 Gingerbread Cookies</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">💨 KB Vapes — 6 Flavors</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🔥 Live Resin Pre-Rolls</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">💎 1g Batter — 3 Strains</span><span class="ticker-dot">◆</span>
+      <span class="ticker-item">🍭 Gummies 200mg</span><span class="ticker-dot">◆</span>
+    </div>
+  </div>
+
+  <div class="panels">
+
+    <div class="panel open" id="panel-flower">
+      <div class="panel-header" onclick="togglePanel('flower')">
+        <div class="panel-accent lime"></div>
+        <div class="panel-num">01</div>
+        <div class="panel-icon">🌿</div>
+        <div class="panel-title flower">Flower</div>
+        <div class="panel-arrow">▶</div>
+      </div>
+      <div class="panel-body">
+        <div class="flower-strain-name">Shake</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(2,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$55</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$100</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Blue Dream · Sativa · Smalls</div>
+        <div class="flower-prices">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$25</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$45</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$80</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$140</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Pablo's Pineapple · Hybrid</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(4,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$40</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$60</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$100</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$175</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Apple Fritter · Hybrid</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(4,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$40</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$60</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$80</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$150</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Sour Apple · Sativa Hybrid</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(4,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$40</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$60</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$100</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$175</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Punch Breath · Indica Hybrid</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(4,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$40</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$60</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$100</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$175</div></div>
+        </div>
+
+        <div style="height:20px;"></div>
+        <div class="flower-strain-name">Billy Kimber · BackpackBoyz</div>
+        <div class="flower-prices" style="grid-template-columns:repeat(4,1fr);">
+          <div class="f-price-cell"><div class="f-weight">1/8 oz · 3.5g</div><div class="f-amt">$60</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/4 oz · 7g</div><div class="f-amt">$115</div></div>
+          <div class="f-price-cell"><div class="f-weight">1/2 oz · 14g</div><div class="f-amt">$220</div></div>
+          <div class="f-price-cell"><div class="f-weight">1 oz · 28g</div><div class="f-amt">$420</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-prerolls">
+      <div class="panel-header" onclick="togglePanel('prerolls')">
+        <div class="panel-accent candy"></div>
+        <div class="panel-num">02</div>
+        <div class="panel-icon">🔥</div>
+        <div class="panel-title preroll">Pre-Rolls</div>
+        <div class="panel-arrow">▶</div>
+      </div>
+      <div class="panel-body">
+        <div class="preroll-cards">
+          <div class="preroll-card">
+            <div class="pr-label">5-Pack · Keef Coated · Live Resin Infused</div>
+            <div class="pr-name">Blue Gushers</div>
+            <div class="pr-detail">5 premium pre-rolls per pack<br>Coated in keef · Infused with live resin</div>
+            <div class="pr-price">$35</div>
+          </div>
+          <div class="preroll-card">
+            <div class="pr-label">5-Pack · Keef Coated · Live Resin Infused</div>
+            <div class="pr-name">Northern Lights</div>
+            <div class="pr-detail">5 premium pre-rolls per pack<br>Coated in keef · Infused with live resin</div>
+            <div class="pr-price">$35</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-vapes">
+      <div class="panel-header" onclick="togglePanel('vapes')">
+        <div class="panel-accent ice"></div>
+        <div class="panel-num">03</div>
+        <div class="panel-icon">💨</div>
+        <div class="panel-title vapes">Vapes</div>
+        <div class="panel-arrow">▶</div>
+      </div>
+      <div class="panel-body">
+        <div class="kb-vapes-header" style="margin-bottom:6px;">Multiple flavors available per brand</div>
+        <div class="brand-row-list">
+          <div class="brand-row" style="border-left:3px solid var(--hot);">
+            <div class="brand-row-name" style="color:var(--hot);">KB <span style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--neon);">(Highest Quality)</span></div>
+            <div class="brand-row-info">2g disposable</div>
+            <div class="brand-row-price">$35</div>
+          </div>
+          <div class="brand-row muha"><div class="brand-row-name muha">Muha Meds</div><div class="brand-row-info">2g disposable</div><div class="brand-row-price">$35</div></div>
+          <div class="brand-row chief"><div class="brand-row-name chief">Big Chief</div><div class="brand-row-info">2g disposable</div><div class="brand-row-price">$35</div></div>
+          <div class="brand-row mad"><div class="brand-row-name mad">Mad Labs</div><div class="brand-row-info">2g disposable</div><div class="brand-row-price">$30</div></div>
+          <div class="brand-row ace"><div class="brand-row-name ace">Ace</div><div class="brand-row-info">2g disposable</div><div class="brand-row-price">$30</div></div>
+          <div class="brand-row" style="border-left:3px solid var(--lime);">
+            <div class="brand-row-name" style="color:var(--lime);">Backpack Boys</div>
+            <div class="brand-row-info">1.2g · Live Resin</div>
+            <div class="brand-row-price">$50</div>
+          </div>
+        </div>
+
+        <div class="other-brands-header" style="margin-top:24px;">Live Rosin · 2 Flavors · $50 each</div>
+        <div class="brand-row-list">
+          <div class="brand-row" style="border-left:3px solid var(--candy);">
+            <div class="brand-row-name" style="color:var(--candy);">Wedding Cake</div>
+            <div class="brand-row-info">Live rosin · Indica hybrid</div>
+            <div class="brand-row-price">$50</div>
+          </div>
+          <div class="brand-row" style="border-left:3px solid var(--grape);">
+            <div class="brand-row-name" style="color:var(--grape);">Grape God</div>
+            <div class="brand-row-info">Live rosin · Indica</div>
+            <div class="brand-row-price">$50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-concentrates">
+      <div class="panel-header" onclick="togglePanel('concentrates')">
+        <div class="panel-accent grape"></div>
+        <div class="panel-num">04</div>
+        <div class="panel-icon">💎</div>
+        <div class="panel-title conc">Concentrates</div>
+        <div class="panel-arrow">▶</div>
+      </div>
+      <div class="panel-body">
+        <div class="conc-tiles">
+          <div class="conc-tile"><div class="conc-label">1g · Batter · Sativa</div><div class="conc-name">Amnesia Haze</div><div class="conc-price">$30</div></div>
+          <div class="conc-tile"><div class="conc-label">1g · Batter · Indica</div><div class="conc-name">Blueberry Muffin</div><div class="conc-price">$30</div></div>
+          <div class="conc-tile"><div class="conc-label">1g · Batter · Indica Hybrid</div><div class="conc-name">Ice Cream Cake</div><div class="conc-price">$30</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-edibles">
+      <div class="panel-header" onclick="togglePanel('edibles')">
+        <div class="panel-accent hot"></div>
+        <div class="panel-num">05</div>
+        <div class="panel-icon">🍬</div>
+        <div class="panel-title edible">Edibles</div>
+        <div class="panel-arrow">▶</div>
+      </div>
+      <div class="panel-body">
+        <div class="edible-wrap">
+          <div class="edible-tile">
+            <span class="edible-emoji">🍪</span>
+            <div class="edible-name" style="font-size:16px;white-space:nowrap;">Gingerbread Cookies</div>
+            <div class="edible-detail">25mg THC per cookie<br>Individually dosed</div>
+            <div class="edible-price">$7<span class="edible-unit">/ cookie</span></div>
+          </div>
+          <div class="edible-tile">
+            <span class="edible-emoji">🍭</span>
+            <div class="edible-name">Gummies</div>
+            <div class="edible-detail">200mg THC per bag<br>10 count per bag</div>
+            <div class="edible-price">$25<span class="edible-unit">/ bag</span></div>
+          </div>
+          <div class="edible-tile">
+            <span class="edible-emoji">🍫</span>
+            <div class="edible-name">Brownie</div>
+            <div class="edible-detail">THC infused · Individually dosed</div>
+            <div class="edible-price">$7<span class="edible-unit">/ each</span></div>
+          </div>
+          <div class="edible-tile">
+            <span class="edible-emoji">🍪</span>
+            <div class="edible-name">Cookie</div>
+            <div class="edible-detail">THC infused · Individually dosed</div>
+            <div class="edible-price">$7<span class="edible-unit">/ each</span></div>
+          </div>
+          <div class="edible-tile">
+            <span class="edible-emoji">☕</span>
+            <div class="edible-name" style="font-size:16px;white-space:nowrap;">Hot Cocoa Powder</div>
+            <div class="edible-detail">THC infused<br>1 jar · 1 serving</div>
+            <div class="edible-price">$7<span class="edible-unit">/ jar</span></div>
+          </div>
+          <div class="edible-tile">
+            <span class="edible-emoji">🍒</span>
+            <div class="edible-name">THC Syrup</div>
+            <div class="edible-detail">600mg THC per bottle<br>Cherry Lemonade · Pineapple</div>
+            <div class="edible-price">$25<span class="edible-unit">/ bottle</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="site-footer">
+    <span>KB · Live Menu</span>
+    <span>Prices subject to change</span>
+  </div>
+</div>
+
+<script>
+const PASS='kb1';
+const CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%◆▶ ';
+const CANDIES=['🍬','🍭','🍫','🍪','🧁','🍩','🍡','🎂','🍦','🍰'];
+
+function checkPass(){
+  const val=document.getElementById('gate-input').value;
+  const err=document.getElementById('gate-error');
+  if(val===PASS){
+    document.getElementById('gate').classList.add('unlocking');
+    setTimeout(()=>{
+      document.getElementById('gate').style.display='none';
+      document.getElementById('menu').classList.add('visible');
+      document.title='KB — Live Menu';
+      initMenu();
+    },700);
+  } else {
+    err.classList.add('show');
+    document.getElementById('gate-input').value='';
+    document.getElementById('gate-input').focus();
+    setTimeout(()=>err.classList.remove('show'),2200);
+  }
+}
+
+document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPass();});
+
+function flapText(el,finalText,speed){
+  if(!el||!String(finalText).trim())return;
+  const upper=String(finalText).toUpperCase();
+  // Lock element dimensions before animating to prevent layout shift
+  const w=el.offsetWidth;
+  const h=el.offsetHeight;
+  if(w>0)el.style.minWidth=w+'px';
+  if(h>0)el.style.minHeight=h+'px';
+  el.innerHTML='';
+  upper.split('').forEach((ch,i)=>{
+    const span=document.createElement('span');
+    span.style.cssText='display:inline-block;min-width:0.6em;text-align:center;';
+    span.textContent=ch===' '?'\u00A0':CHARS[Math.floor(Math.random()*CHARS.length)];
+    el.appendChild(span);
+    if(ch===' ')return;
+    const endAt=Date.now()+i*40+speed;
+    const t=setInterval(()=>{
+      if(Date.now()<endAt){span.textContent=CHARS[Math.floor(Math.random()*CHARS.length)];}
+      else{span.textContent=ch;clearInterval(t);}
+    },40);
+  });
+}
+
+function flapPanel(panelEl){
+  const targets=panelEl.querySelectorAll('.panel-title,.f-weight,.f-amt,.flower-strain-name,.pr-name,.pr-label,.pr-price,.brand-row-name,.brand-row-info,.brand-row-price,.conc-name,.conc-label,.conc-price,.edible-name,.edible-detail,.edible-price,.kb-flavor-chip');
+  let stagger=0;
+  targets.forEach(el=>{
+    const txt=el.dataset.orig||el.textContent;
+    if(!el.dataset.orig)el.dataset.orig=txt;
+    setTimeout(()=>flapText(el,txt,280+Math.random()*180),stagger);
+    stagger+=12;
+  });
+}
+
+function storeOriginals(){
+  document.querySelectorAll('.panel-title,.f-weight,.f-amt,.flower-strain-name,.pr-name,.pr-label,.pr-price,.brand-row-name,.brand-row-info,.brand-row-price,.conc-name,.conc-label,.conc-price,.edible-name,.edible-detail,.edible-price,.kb-flavor-chip')
+  .forEach(el=>{el.dataset.orig=el.textContent;});
+}
+
+function togglePanel(id){
+  const panel=document.getElementById('panel-'+id);
+  const wasOpen=panel.classList.contains('open');
+  panel.classList.toggle('open');
+  if(!wasOpen)flapPanel(panel);
+}
+
+function typeWriter(el,text,delay){
+  const cursor=document.createElement('span');
+  cursor.className='hero-cursor';
+  el.appendChild(cursor);
+  let i=0;
+  function next(){
+    if(i<text.length){
+      el.insertBefore(document.createTextNode(text[i]),cursor);
+      i++;
+      setTimeout(next,160+Math.random()*80);
+    } else {
+      setTimeout(()=>{cursor.style.transition='opacity .5s';cursor.style.opacity='0';setTimeout(()=>cursor.remove(),600);},1400);
+    }
+  }
+  setTimeout(next,delay);
+}
+
+function dropCandy(){
+  const overlay=document.getElementById('candy-overlay');
+  if(!overlay)return;
+  const el=document.createElement('div');
+  el.className='candy-drop';
+  el.textContent=CANDIES[Math.floor(Math.random()*CANDIES.length)];
+  const rot=Math.floor(Math.random()*720-360)+'deg';
+  const dur=2600+Math.random()*2400;
+  const delay=Math.random()*2600;
+  el.style.left=Math.random()*window.innerWidth+'px';
+  el.style.fontSize=(18+Math.floor(Math.random()*18))+'px';
+  el.style.setProperty('--rot',rot);
+  el.style.animationDuration=dur+'ms';
+  el.style.animationDelay=delay+'ms';
+  overlay.appendChild(el);
+  setTimeout(()=>el.remove(),dur+delay+300);
+}
+
+function startCandyRain(){
+  for(let i=0;i<36;i++)setTimeout(dropCandy,i*100);
+  setTimeout(()=>{const o=document.getElementById('candy-overlay');if(o)o.remove();},10000);
+}
+
+function initMenu(){
+  storeOriginals();
+  document.getElementById('last-updated').textContent=new Date().toLocaleTimeString();
+  typeWriter(document.getElementById('hero-logo'),'KB',300);
+  setTimeout(()=>flapPanel(document.getElementById('panel-flower')),700);
+  startCandyRain();
+}
+
+window.addEventListener('load',startCandyRain);
+</script>
+</body>
+</html>
